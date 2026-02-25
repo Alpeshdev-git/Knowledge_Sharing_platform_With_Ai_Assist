@@ -18,8 +18,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/create" element={<CreateArticle />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/ai-improve" element={<AiImprove />} />
-       <Route path="/ai-summary" element={<AiSummary />} />
+        {/* <Route path="/ai-improve" element={<AiImprove />} />
+       <Route path="/ai-summary" element={<AiSummary />} /> */}
       </Routes>
     </BrowserRouter>
   );

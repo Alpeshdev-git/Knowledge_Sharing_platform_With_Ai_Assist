@@ -20,8 +20,8 @@ function Navbar() {
           <>
             <Link to="/create">Create</Link>
             <Link to="/dashboard">Dashboard</Link>
-            <Link to="/ai-summary">AI Summarizer</Link>
-            <Link to="/ai-improve">AI Improve</Link>
+            {/* <Link to="/ai-summary">AI Summarizer</Link>
+            <Link to="/ai-improve">AI Improve</Link> */}
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (

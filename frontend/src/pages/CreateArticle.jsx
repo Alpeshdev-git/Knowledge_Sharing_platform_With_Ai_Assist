@@ -1,100 +1,140 @@
-import { useEffect, useState, useContext } from "react";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import ReactQuill from "react-quill";
 import API from "../api/axios";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import "../css/dashboard.css";
+import "react-quill/dist/quill.snow.css";
+import "../css/createarticle.css";
 
-function Dashboard() {
-  const { user } = useContext(AuthContext); // logged-in user info
+function CreateArticle() {
   const navigate = useNavigate();
-  const [articles, setArticles] = useState([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const editingArticle = location.state?.article;
 
-  // Fetch articles from API
-  const fetchArticles = async (query = "") => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("");
+  const [tags, setTags] = useState("");
+  const [summary, setSummary] = useState("");
+  const [loadingAI, setLoadingAI] = useState(false);
+
+  useEffect(() => {
+    if (editingArticle) {
+      setTitle(editingArticle.title || "");
+      setContent(editingArticle.content || "");
+      setCategory(editingArticle.category || "");
+      setTags(editingArticle.tags || "");
+      setSummary(editingArticle.summary || "");
+    } else {
+      setTitle("");
+      setContent("");
+      setCategory("");
+      setTags("");
+      setSummary("");
+    }
+  }, [editingArticle]);
+
+  // Create / Update
+  const handleSubmit = async () => {
     try {
-      setLoading(true);
-      const res = await API.get(`/articles${query ? `?search=${query}` : ""}`);
-      if (Array.isArray(res.data)) setArticles(res.data);
-      else if (Array.isArray(res.data.data)) setArticles(res.data.data);
-      else setArticles([]);
+      if (editingArticle) {
+        await API.put(`/articles/${editingArticle.id}`, {
+          title,
+          content,
+          category,
+          tags,
+          summary,
+        });
+        alert("Article updated successfully!");
+      } else {
+        await API.post("/articles", { title, content, category, tags, summary });
+        alert("Article created successfully!");
+      }
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setArticles([]);
-    } finally {
-      setLoading(false);
+      alert("Failed to save article.");
     }
   };
 
-  useEffect(() => {
-    fetchArticles();
-  }, []);
+  // Delete
+  const handleDelete = async () => {
+    if (!editingArticle) return;
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this article?"
+    );
+    if (!confirmDelete) return;
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchArticles(search.trim());
-  };
-
-  const handleEdit = (article) => {
-    navigate("/create", { state: { article } });
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this article?")) return;
     try {
-      await API.delete(`/articles/${id}`);
-      setArticles(articles.filter(a => a.id !== id));
+      await API.delete(`/articles/${editingArticle.id}`);
       alert("Article deleted successfully!");
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       alert("Failed to delete article.");
     }
   };
 
+  // AI Improve Content
+  const handleAiImprove = async () => {
+    if (!content.trim()) return;
+    try {
+      setLoadingAI(true);
+      const res = await API.post("/ai/improve", { content });
+      setContent(res.data.improved || content);
+      alert("Content improved by AI!");
+    } catch (err) {
+      console.error(err);
+      alert("AI improvement failed.");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
   return (
-    <div className="dashboard-page">
-      <h2>All Articles</h2>
+    <div className="create-article-page">
+      <h2>{editingArticle ? "Edit Article" : "Create Article"}</h2>
 
-      {/* Search bar */}
-      <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          placeholder="Search articles..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button type="submit">Search</button>
-      </form>
+      <input
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        placeholder="Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      />
+      <input
+        placeholder="Tags (comma separated)"
+        value={tags}
+        onChange={(e) => setTags(e.target.value)}
+      />
+      <input
+        placeholder="Summary"
+        value={summary}
+        onChange={(e) => setSummary(e.target.value)}
+      />
+      <ReactQuill value={content} onChange={setContent} />
 
-      {loading ? (
-        <p className="loading-text">Loading articles...</p>
-      ) : articles.length === 0 ? (
-        <p className="loading-text">No articles found.</p>
-      ) : (
-        <div className="articles-grid">
-          {articles.map(article => (
-            <div key={article.id} className="article-card">
-              <h3>{article.title}</h3>
-              <p>{article.summary}</p>
-              <small>
-                <strong>Category:</strong> {article.category} |{" "}
-                <strong>Tags:</strong> {article.tags}
-              </small>
-
-              {/* Only show Edit/Delete if current user is the author */}
-              {user?.id === article.userId && (
-                <div className="article-actions">
-                  <button onClick={() => handleEdit(article)}>Edit</button>
-                  <button onClick={() => handleDelete(article.id)}>Delete</button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="article-buttons">
+        <button onClick={handleSubmit}>
+          {editingArticle ? "Update Article" : "Publish Article"}
+        </button>
+        {editingArticle && (
+          <button className="delete-btn" onClick={handleDelete}>
+            Delete Article
+          </button>
+        )}
+        <button
+          className="ai-btn"
+          onClick={handleAiImprove}
+          disabled={loadingAI}
+        >
+          {loadingAI ? "Improving..." : "AI Improve"}
+        </button>
+      </div>
     </div>
   );
 }
 
-export default Dashboard;
+export default CreateArticle;

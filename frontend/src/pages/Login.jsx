@@ -1,4 +1,3 @@
-// Login.js
 import { useState, useContext } from "react";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
@@ -12,13 +11,18 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await API.post("/auth/login", form);
-    login(res.data.token);
-    navigate("/");
+    try {
+      const res = await API.post("/auth/login", form);
+      login(res.data.token);
+      navigate("/dashboard"); // Redirect to dashboard
+    } catch (err) {
+      console.error(err);
+      alert("Login failed. Please check your credentials.");
+    }
   };
 
   return (
-    <div className="login-page"> {/* This wrapper centers the form */}
+    <div className="login-page">
       <form onSubmit={handleSubmit} className="login-form">
         <h2>Login</h2>
         <input

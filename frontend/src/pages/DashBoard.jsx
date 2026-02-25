@@ -9,18 +9,20 @@ function Dashboard() {
   const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState(""); // selected category
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(null); // article id being summarized
+  const [summaries, setSummaries] = useState({}); // store summaries by article id
 
-  // Fetch articles (optionally filtered by search or category)
-  const fetchArticles = async (query = "", cat = "") => {
+  // Fetch articles
+  const fetchArticles = async (query = "", category = "") => {
     try {
       setLoading(true);
       let url = "/articles";
-      if (query && cat) url += `?search=${query}&category=${cat}`;
-      else if (query) url += `?search=${query}`;
-      else if (cat) url += `?category=${cat}`;
-
+      const params = [];
+      if (query) params.push(`search=${query}`);
+      if (category) params.push(`category=${category}`);
+      if (params.length) url += `?${params.join("&")}`;
       const res = await API.get(url);
       if (Array.isArray(res.data)) setArticles(res.data);
       else if (Array.isArray(res.data.data)) setArticles(res.data.data);
@@ -40,7 +42,7 @@ function Dashboard() {
   // Search handler
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchArticles(search.trim(), category);
+    fetchArticles(search.trim(), categoryFilter);
   };
 
   // Edit article
@@ -61,11 +63,25 @@ function Dashboard() {
     }
   };
 
+  // AI Summarize
+  const handleAiSummary = async (articleId, content) => {
+    try {
+      setAiLoading(articleId);
+      const res = await API.post("/ai/summary", { content });
+      setSummaries((prev) => ({ ...prev, [articleId]: res.data.summary }));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate summary.");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
   return (
     <div className="dashboard-page">
       <h2>All Articles</h2>
 
-      {/* Search + Category dropdown */}
+      {/* Search & Category */}
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
@@ -73,19 +89,17 @@ function Dashboard() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
         >
           <option value="">All Categories</option>
           <option value="Backend">Backend</option>
           <option value="Frontend">Frontend</option>
-          <option value="DevOps">DevOps</option>
           <option value="AI">AI</option>
+          <option value="DevOps">DevOps</option>
         </select>
-
-        <button type="submit">Search</button>
+        <button type="submit">Filter</button>
       </form>
 
       {loading ? (
@@ -103,13 +117,32 @@ function Dashboard() {
                 <strong>Tags:</strong> {article.tags}
               </small>
 
-              {/* Show edit/delete only for the author */}
-              {article.userId === user?.id && (
-                <div className="article-actions">
-                  <button onClick={() => handleEdit(article)}>Edit</button>
-                  <button onClick={() => handleDelete(article.id)}>Delete</button>
-                </div>
-              )}
+              {/* AI Summary */}
+              <div className="article-actions">
+                <button
+                  onClick={() => handleAiSummary(article.id, article.content)}
+                  disabled={aiLoading === article.id}
+                  className="ai-btn"
+                >
+                  {aiLoading === article.id ? "Summarizing..." : "AI Summarize"}
+                </button>
+
+                {/* Show summary if available */}
+                {summaries[article.id] && (
+                  <div className="ai-summary">
+                    <strong>AI Summary:</strong>
+                    <p>{summaries[article.id]}</p>
+                  </div>
+                )}
+
+                {/* Edit/Delete only for author */}
+                {article.userId === user?.id && (
+                  <>
+                    <button onClick={() => handleEdit(article)}>Edit</button>
+                    <button onClick={() => handleDelete(article.id)}>Delete</button>
+                  </>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -118,4 +151,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default Dashboard; 
