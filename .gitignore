@@ -1,0 +1,7 @@
+# Ignore sensitive files
+config.env
+*.key
+
+# Ignore OS / IDE files
+.DS_Store
+node_modules/

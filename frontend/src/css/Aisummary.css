@@ -1,0 +1,103 @@
+/* aiImprove.css - modern, light-themed AI tool form */
+
+.ai-improve-page {
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 30px 25px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ai-improve-page h2 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Textarea for input */
+.ai-improve-page textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  outline: none;
+  background-color: #fafafa;
+  transition: border 0.2s;
+}
+
+.ai-improve-page textarea:focus {
+  border-color: #4caf50;
+  background-color: #fff;
+}
+
+/* Button */
+.ai-improve-page button {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ai-improve-page button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.ai-improve-page button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Result box */
+.result-box {
+  padding: 15px 20px;
+  background-color: #f0f9f0;
+  border-left: 5px solid #4caf50;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-box h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.result-box p {
+  margin: 0;
+  color: #555;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .ai-improve-page {
+    padding: 20px 15px;
+  }
+
+  .ai-improve-page h2 {
+    font-size: 1.6rem;
+  }
+
+  .ai-improve-page button {
+    font-size: 0.95rem;
+    padding: 10px 0;
+  }
+}

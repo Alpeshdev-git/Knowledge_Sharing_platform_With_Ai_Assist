@@ -1,0 +1,89 @@
+/* Navbar.css - Modern & Attractive */
+
+/* Navbar container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #1fd1f9, #b621fe); /* vibrant gradient */
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  margin: 10px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Left links container */
+.nav-left {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Right container for logout */
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Links */
+.navbar a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 50px; /* pill shape */
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar a:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Logout button */
+.navbar button {
+  padding: 8px 20px;
+  border: none;
+  background: #ff416c; /* pink/red gradient button */
+  background: linear-gradient(135deg, #ff4b2b, #ff416c);
+  color: white;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navbar button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .nav-left, .nav-right {
+    width: 100%;
+    justify-content: center;
+    margin: 5px 0;
+    flex-wrap: wrap;
+  }
+
+  .navbar a, .navbar button {
+    width: 90%;
+    text-align: center;
+    margin: 5px auto;
+  }
+}
